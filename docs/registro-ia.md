@@ -16,3 +16,5 @@ La implementación del código fue realizada por los integrantes.
 | 7 | 28/10/2026 | A | Etapa 1 | Código de filtros y listado | Completar operaciones de la versión base | Alto: código provisto por IA, revisado y comprendido por el equipo |
 | 8 | 28/10/2026 | A | Etapa 1 | Código del reporte de solicitudes | Completar operaciones de la versión base | Alto: código provisto por IA, revisado y comprendido por el equipo |
 | 9 | 28/10/2026 | A | Etapa 1 | Código de persistencia en CSV | Completar la versión base con persistencia | Alto: código provisto por IA, revisado y comprendido por el equipo |
+| 10 | 28/10/2026 | A | Etapa 1 | Código del menú de consola (Main) y guion de prueba manual | Permitir operar y probar la versión base | Alto: código provisto por IA, revisado y probado por el equipo |
+| 11 | 28/10/2026 | A | Etapa 1 | Redacción del README de la versión base | Documentar descripción, uso, funcionalidades y tecnologías | Alto: texto provisto por IA, revisado y completado por el equipo |
