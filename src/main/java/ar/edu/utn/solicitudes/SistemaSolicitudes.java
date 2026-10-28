@@ -1,5 +1,8 @@
 package ar.edu.utn.solicitudes;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,10 +15,12 @@ public class SistemaSolicitudes {
     int ultimoId = 0;
 
     public SistemaSolicitudes() {
-        responsables.add(new Responsable(1, "Laura Gómez", "Bedelía"));
-        responsables.add(new Responsable(2, "Martín Ruiz", "Secretaría Académica"));
-        responsables.add(new Responsable(3, "Sofía Díaz", "Departamento Docente"));
+        responsables.add(new Responsable(1, "Laura Gomez", "Bedelia"));
+        responsables.add(new Responsable(2, "Martin Ruiz", "Secretaria Academica"));
+        responsables.add(new Responsable(3, "Sofia Diaz", "Departamento Docente"));
+        cargar();
     }
+
     public Solicitud registrarSolicitud(String legajo, String nombre, String email, String tipo, int prioridad, String desc, String fecha) {
         // validaciones
         if (legajo == null || legajo.equals("")) {
@@ -67,6 +72,7 @@ public class SistemaSolicitudes {
         }
 
         lst.add(s);
+        guardar();
 
         System.out.println("Solicitud #" + s.id + " registrada. Plazo: " + calcularDiasLimite(s) + " dias");
         return s;
@@ -93,6 +99,7 @@ public class SistemaSolicitudes {
         }
         return dias;
     }
+
     public boolean cambiarEstado(int id, String nuevo) {
         Solicitud s = null;
         for (int i = 0; i < lst.size(); i++) {
@@ -123,6 +130,7 @@ public class SistemaSolicitudes {
             return false;
         }
 
+        guardar();
         System.out.println("Solicitud #" + id + " ahora esta " + s.estado);
         return true;
     }
@@ -156,9 +164,11 @@ public class SistemaSolicitudes {
         }
 
         s.resp = r;
+        guardar();
         System.out.println("Solicitud #" + idSolicitud + " asignada a " + r.nombre + " (" + r.area + ")");
         return true;
     }
+
     public List<Solicitud> filtrarPorEstado(String estado) {
         List<Solicitud> res = new ArrayList<>();
         for (int i = 0; i < lst.size(); i++) {
@@ -211,6 +221,7 @@ public class SistemaSolicitudes {
                     + " | " + s.est.nombre + " | " + r + " | " + s.desc);
         }
     }
+
     public void reporte() {
         System.out.println("===== REPORTE DE SOLICITUDES =====");
         System.out.println("Total: " + lst.size());
@@ -266,6 +277,58 @@ public class SistemaSolicitudes {
             System.out.println("No hay solicitudes vencidas");
         }
     }
+
+    public void guardar() {
+        try {
+            FileWriter fw = new FileWriter("solicitudes.csv");
+            for (Solicitud s : lst) {
+                int idR = 0;
+                if (s.resp != null) {
+                    idR = s.resp.id;
+                }
+                fw.write(s.id + ";" + s.tipo + ";" + s.prioridad + ";" + s.estado + ";" + s.desc + ";"
+                        + s.fecha + ";" + s.est.legajo + ";" + s.est.nombre + ";" + s.est.email + ";" + idR + "\n");
+            }
+            fw.close();
+        } catch (Exception ex) {
+        }
+    }
+
+    public void cargar() {
+        try {
+            BufferedReader br = new BufferedReader(new FileReader("solicitudes.csv"));
+            String linea;
+            while ((linea = br.readLine()) != null) {
+                String[] x = linea.split(";");
+
+                Estudiante e = null;
+                for (Estudiante aux : estudiantes) {
+                    if (aux.legajo.equals(x[6])) {
+                        e = aux;
+                    }
+                }
+                if (e == null) {
+                    e = new Estudiante(x[6], x[7], x[8]);
+                    estudiantes.add(e);
+                }
+
+                Solicitud s = new Solicitud(Integer.parseInt(x[0]), x[1], Integer.parseInt(x[2]), x[4], LocalDate.parse(x[5]), e);
+                s.estado = x[3];
+
+                int idR = Integer.parseInt(x[9]);
+                for (Responsable r : responsables) {
+                    if (r.id == idR) {
+                        s.resp = r;
+                    }
+                }
+
+                lst.add(s);
+                if (s.id > ultimoId) {
+                    ultimoId = s.id;
+                }
+            }
+            br.close();
+        } catch (Exception ex) {
+        }
+    }
 }
-
-
