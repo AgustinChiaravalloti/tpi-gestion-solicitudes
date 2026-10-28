@@ -14,3 +14,5 @@ La implementación del código fue realizada por los integrantes.
 | 5 | 28/10/2026 | A | Etapa 1 | Código de SistemaSolicitudes: esqueleto y registro de solicitudes | Construir la versión base con problemas de diseño intencionales | Alto: código provisto por IA, revisado y comprendido por el equipo |
 | 6 | 28/10/2026 | A | Etapa 1 | Código de cambio de estado y asignación de responsable | Completar operaciones de la versión base | Alto: código provisto por IA, revisado y comprendido por el equipo |
 | 7 | 28/10/2026 | A | Etapa 1 | Código de filtros y listado | Completar operaciones de la versión base | Alto: código provisto por IA, revisado y comprendido por el equipo |
+| 8 | 28/10/2026 | A | Etapa 1 | Código del reporte de solicitudes | Completar operaciones de la versión base | Alto: código provisto por IA, revisado y comprendido por el equipo |
+| 9 | 28/10/2026 | A | Etapa 1 | Código de persistencia en CSV | Completar la versión base con persistencia | Alto: código provisto por IA, revisado y comprendido por el equipo |
