@@ -93,7 +93,72 @@ public class SistemaSolicitudes {
         }
         return dias;
     }
+    public boolean cambiarEstado(int id, String nuevo) {
+        Solicitud s = null;
+        for (int i = 0; i < lst.size(); i++) {
+            if (lst.get(i).id == id) {
+                s = lst.get(i);
+            }
+        }
+        if (s == null) {
+            System.out.println("Error: no existe la solicitud " + id);
+            return false;
+        }
 
+        if (nuevo.equals("EN_PROCESO") && s.resp == null) {
+            System.out.println("Error: no se puede pasar a EN_PROCESO sin responsable asignado");
+            return false;
+        }
+
+        if (s.estado.equals("PENDIENTE") && nuevo.equals("EN_PROCESO")) {
+            s.estado = nuevo;
+        } else if (s.estado.equals("PENDIENTE") && nuevo.equals("RECHAZADA")) {
+            s.estado = nuevo;
+        } else if (s.estado.equals("EN_PROCESO") && nuevo.equals("RESUELTA")) {
+            s.estado = nuevo;
+        } else if (s.estado.equals("EN_PROCESO") && nuevo.equals("RECHAZADA")) {
+            s.estado = nuevo;
+        } else {
+            System.out.println("Error: no se puede pasar de " + s.estado + " a " + nuevo);
+            return false;
+        }
+
+        System.out.println("Solicitud #" + id + " ahora esta " + s.estado);
+        return true;
+    }
+
+    public boolean asignarResponsable(int idSolicitud, int idResp) {
+        Solicitud s = null;
+        for (int i = 0; i < lst.size(); i++) {
+            if (lst.get(i).id == idSolicitud) {
+                s = lst.get(i);
+            }
+        }
+        if (s == null) {
+            System.out.println("Error: no existe la solicitud " + idSolicitud);
+            return false;
+        }
+
+        if (s.estado.equals("RESUELTA") || s.estado.equals("RECHAZADA")) {
+            System.out.println("Error: la solicitud ya esta cerrada");
+            return false;
+        }
+
+        Responsable r = null;
+        for (int i = 0; i < responsables.size(); i++) {
+            if (responsables.get(i).id == idResp) {
+                r = responsables.get(i);
+            }
+        }
+        if (r == null) {
+            System.out.println("Error: no existe el responsable " + idResp);
+            return false;
+        }
+
+        s.resp = r;
+        System.out.println("Solicitud #" + idSolicitud + " asignada a " + r.nombre + " (" + r.area + ")");
+        return true;
+    }
 }
 
 
