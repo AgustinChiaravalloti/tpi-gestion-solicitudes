@@ -159,6 +159,58 @@ public class SistemaSolicitudes {
         System.out.println("Solicitud #" + idSolicitud + " asignada a " + r.nombre + " (" + r.area + ")");
         return true;
     }
+    public List<Solicitud> filtrarPorEstado(String estado) {
+        List<Solicitud> res = new ArrayList<>();
+        for (int i = 0; i < lst.size(); i++) {
+            if (lst.get(i).estado.equals(estado)) {
+                res.add(lst.get(i));
+            }
+        }
+        return res;
+    }
+
+    public List<Solicitud> filtrarPorTipo(String tipo) {
+        List<Solicitud> res = new ArrayList<>();
+        for (int i = 0; i < lst.size(); i++) {
+            if (lst.get(i).tipo.equals(tipo)) {
+                res.add(lst.get(i));
+            }
+        }
+        return res;
+    }
+
+    public List<Solicitud> filtrarPorEstudiante(String legajo) {
+        List<Solicitud> res = new ArrayList<>();
+        for (int i = 0; i < lst.size(); i++) {
+            if (lst.get(i).est.legajo.equals(legajo)) {
+                res.add(lst.get(i));
+            }
+        }
+        return res;
+    }
+
+    public void mostrar(List<Solicitud> l) {
+        if (l.isEmpty()) {
+            System.out.println("No hay solicitudes para mostrar");
+            return;
+        }
+        for (Solicitud s : l) {
+            String r = "sin asignar";
+            if (s.resp != null) {
+                r = s.resp.nombre + " (" + s.resp.area + ")";
+            }
+            String p = "";
+            if (s.prioridad == 1) {
+                p = "ALTA";
+            } else if (s.prioridad == 2) {
+                p = "MEDIA";
+            } else {
+                p = "BAJA";
+            }
+            System.out.println("#" + s.id + " | " + s.tipo + " | " + p + " | " + s.estado
+                    + " | " + s.est.nombre + " | " + r + " | " + s.desc);
+        }
+    }
 }
 
 
