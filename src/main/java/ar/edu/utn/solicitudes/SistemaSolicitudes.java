@@ -211,6 +211,61 @@ public class SistemaSolicitudes {
                     + " | " + s.est.nombre + " | " + r + " | " + s.desc);
         }
     }
+    public void reporte() {
+        System.out.println("===== REPORTE DE SOLICITUDES =====");
+        System.out.println("Total: " + lst.size());
+
+        int pend = 0, proc = 0, res = 0, rech = 0;
+        for (Solicitud s : lst) {
+            if (s.estado.equals("PENDIENTE")) {
+                pend++;
+            } else if (s.estado.equals("EN_PROCESO")) {
+                proc++;
+            } else if (s.estado.equals("RESUELTA")) {
+                res++;
+            } else if (s.estado.equals("RECHAZADA")) {
+                rech++;
+            }
+        }
+        System.out.println("--- Por estado ---");
+        System.out.println("PENDIENTE: " + pend);
+        System.out.println("EN_PROCESO: " + proc);
+        System.out.println("RESUELTA: " + res);
+        System.out.println("RECHAZADA: " + rech);
+
+        int cert = 0, eq = 0, cc = 0, rn = 0;
+        for (Solicitud s : lst) {
+            if (s.tipo.equals("CERTIFICADO")) {
+                cert++;
+            } else if (s.tipo.equals("EQUIVALENCIA")) {
+                eq++;
+            } else if (s.tipo.equals("CAMBIO_COMISION")) {
+                cc++;
+            } else if (s.tipo.equals("RECLAMO_NOTA")) {
+                rn++;
+            }
+        }
+        System.out.println("--- Por tipo ---");
+        System.out.println("CERTIFICADO: " + cert);
+        System.out.println("EQUIVALENCIA: " + eq);
+        System.out.println("CAMBIO_COMISION: " + cc);
+        System.out.println("RECLAMO_NOTA: " + rn);
+
+        System.out.println("--- Vencidas ---");
+        int venc = 0;
+        for (Solicitud s : lst) {
+            if (!s.estado.equals("RESUELTA") && !s.estado.equals("RECHAZADA")) {
+                LocalDate limite = s.fecha.plusDays(calcularDiasLimite(s));
+                if (LocalDate.now().isAfter(limite)) {
+                    System.out.println("#" + s.id + " " + s.tipo + " vencio el " + limite);
+                    venc++;
+                }
+            }
+        }
+        if (venc == 0) {
+            System.out.println("No hay solicitudes vencidas");
+        }
+    }
 }
 
 
