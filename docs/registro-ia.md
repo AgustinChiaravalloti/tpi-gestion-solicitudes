@@ -19,3 +19,4 @@ La implementación del código fue realizada por los integrantes.
 | 10 | 28/10/2026 | A | Etapa 1 | Código del menú de consola (Main) y guion de prueba manual | Permitir operar y probar la versión base | Alto: código provisto por IA, revisado y probado por el equipo |
 | 11 | 28/10/2026 | A | Etapa 1 | Redacción del README de la versión base | Documentar descripción, uso, funcionalidades y tecnologías | Alto: texto provisto por IA, revisado y completado por el equipo |
 | 12 | 28/10/2026 | A | Etapas 2 y 3 | Diagnóstico de calidad externa/interna y fichas de code smells | Identificar, medir y priorizar la deuda técnica con evidencia | Alto: análisis y redacción asistidos por IA, verificados por el equipo con capturas y pruebas propias |
+| 13 | 29/10/2026 | A | Etapa 6 | Tests de caracterización de caja negra sobre el menú | Fijar el comportamiento externo antes de refactorizar | Alto: tests provistos por IA, ejecutados y verificados por el equipo |
