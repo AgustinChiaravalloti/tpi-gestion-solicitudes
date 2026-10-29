@@ -56,10 +56,14 @@ public class Solicitud {
         return estudiante.getLegajo().equals(legajo);
     }
 
-    public void asignarResponsable(Responsable nuevoResponsable) {
+    public void verificarAbierta() {
         if (estaCerrada()) {
             throw new SolicitudException("la solicitud ya esta cerrada");
         }
+    }
+
+    public void asignarResponsable(Responsable nuevoResponsable) {
+        verificarAbierta();
         this.responsable = nuevoResponsable;
     }
 
