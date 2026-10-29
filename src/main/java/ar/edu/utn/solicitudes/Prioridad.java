@@ -4,7 +4,12 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public enum Prioridad {
-    ALTA(1),
+    ALTA(1) {
+        @Override
+        public int ajustarPlazo(int dias) {
+            return dias / 2;
+        }
+    },
     MEDIA(2),
     BAJA(3);
 
@@ -16,6 +21,11 @@ public enum Prioridad {
 
     public int getCodigo() {
         return codigo;
+    }
+
+    /** Plazo final segun la prioridad. Por defecto no se modifica. */
+    public int ajustarPlazo(int dias) {
+        return dias;
     }
 
     public static Optional<Prioridad> desdeCodigo(int codigo) {

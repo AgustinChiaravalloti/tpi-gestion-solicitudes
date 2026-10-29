@@ -6,7 +6,9 @@ import java.io.FileWriter;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class SistemaSolicitudes {
@@ -197,41 +199,27 @@ public class SistemaSolicitudes {
         System.out.println("===== REPORTE DE SOLICITUDES =====");
         System.out.println("Total: " + lst.size());
 
-        int pend = 0, proc = 0, res = 0, rech = 0;
-        for (Solicitud s : lst) {
-            if (s.getEstado() == EstadoSolicitud.PENDIENTE) {
-                pend++;
-            } else if (s.getEstado() == EstadoSolicitud.EN_PROCESO) {
-                proc++;
-            } else if (s.getEstado() == EstadoSolicitud.RESUELTA) {
-                res++;
-            } else if (s.getEstado() == EstadoSolicitud.RECHAZADA) {
-                rech++;
-            }
+        Map<EstadoSolicitud, Integer> porEstado = new EnumMap<>(EstadoSolicitud.class);
+        for (EstadoSolicitud estado : EstadoSolicitud.values()) {
+            porEstado.put(estado, 0);
         }
-        System.out.println("--- Por estado ---");
-        System.out.println("PENDIENTE: " + pend);
-        System.out.println("EN_PROCESO: " + proc);
-        System.out.println("RESUELTA: " + res);
-        System.out.println("RECHAZADA: " + rech);
-
-        int cert = 0, eq = 0, cc = 0, rn = 0;
+        Map<TipoSolicitud, Integer> porTipo = new EnumMap<>(TipoSolicitud.class);
+        for (TipoSolicitud tipo : TipoSolicitud.values()) {
+            porTipo.put(tipo, 0);
+        }
         for (Solicitud s : lst) {
-            if (s.getTipo() == TipoSolicitud.CERTIFICADO) {
-                cert++;
-            } else if (s.getTipo() == TipoSolicitud.EQUIVALENCIA) {
-                eq++;
-            } else if (s.getTipo() == TipoSolicitud.CAMBIO_COMISION) {
-                cc++;
-            } else if (s.getTipo() == TipoSolicitud.RECLAMO_NOTA) {
-                rn++;
-            }
+            porEstado.merge(s.getEstado(), 1, Integer::sum);
+            porTipo.merge(s.getTipo(), 1, Integer::sum);
+        }
+
+        System.out.println("--- Por estado ---");
+        for (Map.Entry<EstadoSolicitud, Integer> fila : porEstado.entrySet()) {
+            System.out.println(fila.getKey() + ": " + fila.getValue());
         }
         System.out.println("--- Por tipo ---");
-        System.out.println("CERTIFICADO: " + cert);
-        System.out.println("EQUIVALENCIA: " + eq);
-        System.out.println("CAMBIO_COMISION: " + cc);
-        System.out.println("RECLAMO_NOTA: " + rn);
+        for (Map.Entry<TipoSolicitud, Integer> fila : porTipo.entrySet()) {
+            System.out.println(fila.getKey() + ": " + fila.getValue());
+        }
 
         System.out.println("--- Vencidas ---");
         int venc = 0;

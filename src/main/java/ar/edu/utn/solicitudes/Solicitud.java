@@ -17,16 +17,11 @@ public class Solicitud {
                      LocalDate fecha, Estudiante estudiante) {
         this.id = id;
         this.tipo = tipo;
-        this.prioridad = prioridad;
+        this.prioridad = tipo.prioridadPara(prioridad);
         this.descripcion = descripcion;
         this.fecha = fecha;
         this.estudiante = estudiante;
         this.estado = EstadoSolicitud.PENDIENTE;
-
-        // los reclamos de nota siempre son prioridad alta
-        if (tipo == TipoSolicitud.RECLAMO_NOTA) {
-            this.prioridad = Prioridad.ALTA;
-        }
     }
 
     /** Reconstruye una solicitud ya existente (por ejemplo, al leerla del archivo). */
@@ -42,25 +37,7 @@ public class Solicitud {
     // ---------- comportamiento (movido desde SistemaSolicitudes) ----------
 
     public int diasPlazo() {
-        int dias = 0;
-        switch (tipo) {
-            case CERTIFICADO:
-                dias = 5;
-                break;
-            case EQUIVALENCIA:
-                dias = 30;
-                break;
-            case CAMBIO_COMISION:
-                dias = 10;
-                break;
-            case RECLAMO_NOTA:
-                dias = 7;
-                break;
-        }
-        if (prioridad == Prioridad.ALTA) {
-            dias = dias / 2;
-        }
-        return dias;
+        return prioridad.ajustarPlazo(tipo.getDiasPlazoBase());
     }
 
     public LocalDate fechaLimite() {
@@ -68,7 +45,7 @@ public class Solicitud {
     }
 
     public boolean estaCerrada() {
-        return estado == EstadoSolicitud.RESUELTA || estado == EstadoSolicitud.RECHAZADA;
+        return estado.esFinal();
     }
 
     public boolean estaVencida(LocalDate hoy) {
@@ -87,20 +64,13 @@ public class Solicitud {
     }
 
     public void cambiarEstado(EstadoSolicitud nuevo) {
-        if (nuevo == EstadoSolicitud.EN_PROCESO && responsable == null) {
-            throw new SolicitudException("no se puede pasar a EN_PROCESO sin responsable asignado");
+        if (nuevo.requiereResponsable() && responsable == null) {
+            throw new SolicitudException("no se puede pasar a " + nuevo + " sin responsable asignado");
         }
-        if (estado == EstadoSolicitud.PENDIENTE && nuevo == EstadoSolicitud.EN_PROCESO) {
-            estado = nuevo;
-        } else if (estado == EstadoSolicitud.PENDIENTE && nuevo == EstadoSolicitud.RECHAZADA) {
-            estado = nuevo;
-        } else if (estado == EstadoSolicitud.EN_PROCESO && nuevo == EstadoSolicitud.RESUELTA) {
-            estado = nuevo;
-        } else if (estado == EstadoSolicitud.EN_PROCESO && nuevo == EstadoSolicitud.RECHAZADA) {
-            estado = nuevo;
-        } else {
+        if (!estado.puedePasarA(nuevo)) {
             throw new SolicitudException("no se puede pasar de " + estado + " a " + nuevo);
         }
+        estado = nuevo;
     }
 
     // ---------- consultas ----------
