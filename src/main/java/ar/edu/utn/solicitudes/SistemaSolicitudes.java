@@ -35,15 +35,16 @@ public class SistemaSolicitudes {
         return Collections.unmodifiableList(responsables);
     }
 
-    public Solicitud registrarSolicitud(String legajo, String nombre, String email, String tipo, int prioridad, String desc, String fecha) {
+    public Solicitud registrarSolicitud(DatosSolicitud datos) {
         try {
-            validarDatosPersonales(legajo, nombre, email);
-            TipoSolicitud tipoSolicitud = convertirTipo(tipo);
-            Prioridad prioridadSolicitud = convertirPrioridad(prioridad);
-            validarDescripcion(desc);
+            validarDatosPersonales(datos.legajo(), datos.nombre(), datos.email());
+            TipoSolicitud tipo = convertirTipo(datos.tipo());
+            Prioridad prioridad = convertirPrioridad(datos.prioridad());
+            validarDescripcion(datos.descripcion());
 
-            Estudiante estudiante = buscarOCrearEstudiante(legajo, nombre, email);
-            Solicitud solicitud = crearSolicitud(tipoSolicitud, prioridadSolicitud, desc, LocalDate.parse(fecha), estudiante);
+            Estudiante estudiante = buscarOCrearEstudiante(datos.legajo(), datos.nombre(), datos.email());
+            Solicitud solicitud = crearSolicitud(tipo, prioridad, datos.descripcion(),
+                    LocalDate.parse(datos.fecha()), estudiante);
 
             System.out.println("Solicitud #" + solicitud.getId() + " registrada. Plazo: " + solicitud.diasPlazo() + " dias");
             return solicitud;

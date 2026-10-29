@@ -48,7 +48,7 @@ public class Main {
                     if (fec.equals("")) {
                         fec = LocalDate.now().toString();
                     }
-                    sis.registrarSolicitud(leg, nom, mail, tipo, prio, desc, fec);
+                    sis.registrarSolicitud(new DatosSolicitud(leg, nom, mail, tipo, prio, desc, fec));
                     break;
                 case 2:
                     System.out.println("Responsables disponibles:");
