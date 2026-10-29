@@ -1,11 +1,7 @@
 package ar.edu.utn.solicitudes;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -13,26 +9,22 @@ import java.util.function.Predicate;
 
 public class SistemaSolicitudes {
 
-    private final List<Solicitud> lst = new ArrayList<>();
-    private final List<Estudiante> estudiantes = new ArrayList<>();
-    private final List<Responsable> responsables = new ArrayList<>();
-    private int ultimoId = 0;
-
     private static final int LARGO_MINIMO_DESCRIPCION = 10;
 
-    public SistemaSolicitudes() {
-        responsables.add(new Responsable(1, "Laura Gomez", "Bedelia"));
-        responsables.add(new Responsable(2, "Martin Ruiz", "Secretaria Academica"));
-        responsables.add(new Responsable(3, "Sofia Diaz", "Departamento Docente"));
-        cargar();
+    private final SolicitudRepository repositorio;
+    private final CatalogoResponsables responsables;
+
+    public SistemaSolicitudes(SolicitudRepository repositorio, CatalogoResponsables responsables) {
+        this.repositorio = repositorio;
+        this.responsables = responsables;
     }
 
     public List<Solicitud> listarTodas() {
-        return Collections.unmodifiableList(lst);
+        return repositorio.listarTodas();
     }
 
     public List<Responsable> listarResponsables() {
-        return Collections.unmodifiableList(responsables);
+        return responsables.listarTodos();
     }
 
     public Solicitud registrarSolicitud(DatosSolicitud datos) {
@@ -48,7 +40,7 @@ public class SistemaSolicitudes {
 
             System.out.println("Solicitud #" + solicitud.getId() + " registrada. Plazo: " + solicitud.diasPlazo() + " dias");
             return solicitud;
-        } catch (SolicitudException ex) {
+        } catch (SolicitudException | PersistenciaException ex) {
             informarError(ex);
             return null;
         }
@@ -61,11 +53,11 @@ public class SistemaSolicitudes {
                     () -> new SolicitudException("no se puede pasar de " + solicitud.getEstado() + " a " + nuevo));
 
             solicitud.cambiarEstado(estadoNuevo);
-            guardar();
+            repositorio.guardar(solicitud);
 
             System.out.println("Solicitud #" + id + " ahora esta " + solicitud.getEstado());
             return true;
-        } catch (SolicitudException ex) {
+        } catch (SolicitudException | PersistenciaException ex) {
             informarError(ex);
             return false;
         }
@@ -78,12 +70,12 @@ public class SistemaSolicitudes {
             Responsable responsable = buscarResponsable(idResponsable);
 
             solicitud.asignarResponsable(responsable);
-            guardar();
+            repositorio.guardar(solicitud);
 
             System.out.println("Solicitud #" + idSolicitud + " asignada a " + responsable.getNombre()
                     + " (" + responsable.getArea() + ")");
             return true;
-        } catch (SolicitudException ex) {
+        } catch (SolicitudException | PersistenciaException ex) {
             informarError(ex);
             return false;
         }
@@ -136,46 +128,30 @@ public class SistemaSolicitudes {
     }
 
     private Estudiante buscarOCrearEstudiante(String legajo, String nombre, String email) {
-        for (Estudiante estudiante : estudiantes) {
-            if (estudiante.getLegajo().equals(legajo)) {
-                return estudiante;
-            }
-        }
-        Estudiante nuevo = new Estudiante(legajo, nombre, email);
-        estudiantes.add(nuevo);
-        return nuevo;
+        return repositorio.buscarEstudiante(legajo)
+                .orElseGet(() -> new Estudiante(legajo, nombre, email));
     }
 
     private Solicitud crearSolicitud(TipoSolicitud tipo, Prioridad prioridad, String descripcion,
                                      LocalDate fecha, Estudiante estudiante) {
-        ultimoId++;
-        Solicitud solicitud = new Solicitud(ultimoId, tipo, prioridad, descripcion, fecha, estudiante);
-        lst.add(solicitud);
-        guardar();
+        Solicitud solicitud = new Solicitud(repositorio.siguienteId(), tipo, prioridad, descripcion, fecha, estudiante);
+        repositorio.guardar(solicitud);
         return solicitud;
     }
 
     private Solicitud buscarSolicitud(int id) {
-        for (Solicitud solicitud : lst) {
-            if (solicitud.getId() == id) {
-                return solicitud;
-            }
-        }
-        throw new SolicitudException("no existe la solicitud " + id);
+        return repositorio.buscarPorId(id)
+                .orElseThrow(() -> new SolicitudException("no existe la solicitud " + id));
     }
 
     private Responsable buscarResponsable(int id) {
-        for (Responsable responsable : responsables) {
-            if (responsable.getId() == id) {
-                return responsable;
-            }
-        }
-        throw new SolicitudException("no existe el responsable " + id);
+        return responsables.buscarPorId(id)
+                .orElseThrow(() -> new SolicitudException("no existe el responsable " + id));
     }
 
     private List<Solicitud> filtrar(Predicate<Solicitud> condicion) {
         List<Solicitud> resultado = new ArrayList<>();
-        for (Solicitud solicitud : lst) {
+        for (Solicitud solicitud : repositorio.listarTodas()) {
             if (condicion.test(solicitud)) {
                 resultado.add(solicitud);
             }
@@ -183,7 +159,7 @@ public class SistemaSolicitudes {
         return resultado;
     }
 
-    private void informarError(SolicitudException ex) {
+    private void informarError(RuntimeException ex) {
         System.out.println("Error: " + ex.getMessage());
     }
 
@@ -204,7 +180,8 @@ public class SistemaSolicitudes {
 
     public void reporte() {
         System.out.println("===== REPORTE DE SOLICITUDES =====");
-        System.out.println("Total: " + lst.size());
+        List<Solicitud> todas = repositorio.listarTodas();
+        System.out.println("Total: " + todas.size());
 
         Map<EstadoSolicitud, Integer> porEstado = new EnumMap<>(EstadoSolicitud.class);
         for (EstadoSolicitud estado : EstadoSolicitud.values()) {
@@ -214,7 +191,7 @@ public class SistemaSolicitudes {
         for (TipoSolicitud tipo : TipoSolicitud.values()) {
             porTipo.put(tipo, 0);
         }
-        for (Solicitud s : lst) {
+        for (Solicitud s : todas) {
             porEstado.merge(s.getEstado(), 1, Integer::sum);
             porTipo.merge(s.getTipo(), 1, Integer::sum);
         }
@@ -231,7 +208,7 @@ public class SistemaSolicitudes {
         System.out.println("--- Vencidas ---");
         int venc = 0;
         LocalDate hoy = LocalDate.now();
-        for (Solicitud s : lst) {
+        for (Solicitud s : todas) {
             if (s.estaVencida(hoy)) {
                 System.out.println("#" + s.getId() + " " + s.getTipo() + " vencio el " + s.fechaLimite());
                 venc++;
@@ -239,54 +216,6 @@ public class SistemaSolicitudes {
         }
         if (venc == 0) {
             System.out.println("No hay solicitudes vencidas");
-        }
-    }
-
-    private void guardar() {
-        try {
-            FileWriter fw = new FileWriter("solicitudes.csv");
-            for (Solicitud s : lst) {
-                int idR = 0;
-                if (s.getResponsable() != null) {
-                    idR = s.getResponsable().getId();
-                }
-                fw.write(s.getId() + ";" + s.getTipo() + ";" + s.getPrioridad().getCodigo() + ";" + s.getEstado() + ";"
-                        + s.getDescripcion() + ";" + s.getFecha() + ";" + s.getEstudiante().getLegajo() + ";"
-                        + s.getEstudiante().getNombre() + ";" + s.getEstudiante().getEmail() + ";" + idR + "\n");
-            }
-            fw.close();
-        } catch (Exception ex) {
-        }
-    }
-
-    private void cargar() {
-        try {
-            BufferedReader br = new BufferedReader(new FileReader("solicitudes.csv"));
-            String linea;
-            while ((linea = br.readLine()) != null) {
-                String[] x = linea.split(";");
-
-                Estudiante e = buscarOCrearEstudiante(x[6], x[7], x[8]);
-
-                Responsable resp = null;
-                int idR = Integer.parseInt(x[9]);
-                for (Responsable r : responsables) {
-                    if (r.getId() == idR) {
-                        resp = r;
-                    }
-                }
-
-                Solicitud s = Solicitud.reconstruir(Integer.parseInt(x[0]), TipoSolicitud.valueOf(x[1]),
-                        Prioridad.desdeCodigo(Integer.parseInt(x[2])).get(), EstadoSolicitud.valueOf(x[3]),
-                        x[4], LocalDate.parse(x[5]), e, resp);
-
-                lst.add(s);
-                if (s.getId() > ultimoId) {
-                    ultimoId = s.getId();
-                }
-            }
-            br.close();
-        } catch (Exception ex) {
         }
     }
 }

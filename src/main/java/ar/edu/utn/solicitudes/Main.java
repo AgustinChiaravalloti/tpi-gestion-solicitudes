@@ -1,12 +1,21 @@
 package ar.edu.utn.solicitudes;
 
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.Scanner;
 
 public class Main {
 
     public static void main(String[] args) {
-        SistemaSolicitudes sis = new SistemaSolicitudes();
+        CatalogoResponsables responsables = CatalogoResponsables.predeterminado();
+        SistemaSolicitudes sis;
+        try {
+            SolicitudRepository repositorio = new RepositorioSolicitudesCsv(Path.of("solicitudes.csv"), responsables);
+            sis = new SistemaSolicitudes(repositorio, responsables);
+        } catch (PersistenciaException ex) {
+            System.out.println("Error: " + ex.getMessage() + ". No se modifico el archivo; revise los datos guardados.");
+            return;
+        }
         Scanner sc = new Scanner(System.in);
         int op = -1;
 
