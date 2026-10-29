@@ -52,8 +52,8 @@ public class Main {
                     break;
                 case 2:
                     System.out.println("Responsables disponibles:");
-                    for (Responsable r : sis.responsables) {
-                        System.out.println(r.id + ". " + r.nombre + " - " + r.area);
+                    for (Responsable r : sis.listarResponsables()) {
+                        System.out.println(r.getId() + ". " + r.getNombre() + " - " + r.getArea());
                     }
                     System.out.print("Id de la solicitud: ");
                     int idS = Integer.parseInt(sc.nextLine());
@@ -69,7 +69,7 @@ public class Main {
                     sis.cambiarEstado(id, est);
                     break;
                 case 4:
-                    sis.mostrar(sis.lst);
+                    sis.mostrar(sis.listarTodas());
                     break;
                 case 5:
                     System.out.print("Estado (PENDIENTE / EN_PROCESO / RESUELTA / RECHAZADA): ");

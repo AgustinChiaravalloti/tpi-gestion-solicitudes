@@ -5,21 +5,30 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 public class SistemaSolicitudes {
 
-    public List<Solicitud> lst = new ArrayList<>();
-    public List<Estudiante> estudiantes = new ArrayList<>();
-    public List<Responsable> responsables = new ArrayList<>();
-    int ultimoId = 0;
+    private final List<Solicitud> lst = new ArrayList<>();
+    private final List<Estudiante> estudiantes = new ArrayList<>();
+    private final List<Responsable> responsables = new ArrayList<>();
+    private int ultimoId = 0;
 
     public SistemaSolicitudes() {
         responsables.add(new Responsable(1, "Laura Gomez", "Bedelia"));
         responsables.add(new Responsable(2, "Martin Ruiz", "Secretaria Academica"));
         responsables.add(new Responsable(3, "Sofia Diaz", "Departamento Docente"));
         cargar();
+    }
+
+    public List<Solicitud> listarTodas() {
+        return Collections.unmodifiableList(lst);
+    }
+
+    public List<Responsable> listarResponsables() {
+        return Collections.unmodifiableList(responsables);
     }
 
     public Solicitud registrarSolicitud(String legajo, String nombre, String email, String tipo, int prioridad, String desc, String fecha) {
@@ -54,7 +63,7 @@ public class SistemaSolicitudes {
         // buscar o crear estudiante
         Estudiante e = null;
         for (int i = 0; i < estudiantes.size(); i++) {
-            if (estudiantes.get(i).legajo.equals(legajo)) {
+            if (estudiantes.get(i).getLegajo().equals(legajo)) {
                 e = estudiantes.get(i);
             }
         }
@@ -67,46 +76,18 @@ public class SistemaSolicitudes {
         ultimoId++;
         LocalDate f = LocalDate.parse(fecha);
         Solicitud s = new Solicitud(ultimoId, tipoSolicitud.get(), prioridadSolicitud.get(), desc, f, e);
-        s.estado = EstadoSolicitud.PENDIENTE;
-
-        // los reclamos de nota siempre son prioridad alta
-        if (s.tipo == TipoSolicitud.RECLAMO_NOTA) {
-            s.prioridad = Prioridad.ALTA;
-        }
 
         lst.add(s);
         guardar();
 
-        System.out.println("Solicitud #" + s.id + " registrada. Plazo: " + calcularDiasLimite(s) + " dias");
+        System.out.println("Solicitud #" + s.getId() + " registrada. Plazo: " + s.diasPlazo() + " dias");
         return s;
-    }
-
-    public int calcularDiasLimite(Solicitud s) {
-        int dias = 0;
-        switch (s.tipo) {
-            case CERTIFICADO:
-                dias = 5;
-                break;
-            case EQUIVALENCIA:
-                dias = 30;
-                break;
-            case CAMBIO_COMISION:
-                dias = 10;
-                break;
-            case RECLAMO_NOTA:
-                dias = 7;
-                break;
-        }
-        if (s.prioridad == Prioridad.ALTA) {
-            dias = dias / 2;
-        }
-        return dias;
     }
 
     public boolean cambiarEstado(int id, String nuevo) {
         Solicitud s = null;
         for (int i = 0; i < lst.size(); i++) {
-            if (lst.get(i).id == id) {
+            if (lst.get(i).getId() == id) {
                 s = lst.get(i);
             }
         }
@@ -117,38 +98,26 @@ public class SistemaSolicitudes {
 
         Optional<EstadoSolicitud> estadoNuevo = EstadoSolicitud.desdeTexto(nuevo);
         if (estadoNuevo.isEmpty()) {
-            System.out.println("Error: no se puede pasar de " + s.estado + " a " + nuevo);
-            return false;
-        }
-        EstadoSolicitud n = estadoNuevo.get();
-
-        if (n == EstadoSolicitud.EN_PROCESO && s.resp == null) {
-            System.out.println("Error: no se puede pasar a EN_PROCESO sin responsable asignado");
+            System.out.println("Error: no se puede pasar de " + s.getEstado() + " a " + nuevo);
             return false;
         }
 
-        if (s.estado == EstadoSolicitud.PENDIENTE && n == EstadoSolicitud.EN_PROCESO) {
-            s.estado = n;
-        } else if (s.estado == EstadoSolicitud.PENDIENTE && n == EstadoSolicitud.RECHAZADA) {
-            s.estado = n;
-        } else if (s.estado == EstadoSolicitud.EN_PROCESO && n == EstadoSolicitud.RESUELTA) {
-            s.estado = n;
-        } else if (s.estado == EstadoSolicitud.EN_PROCESO && n == EstadoSolicitud.RECHAZADA) {
-            s.estado = n;
-        } else {
-            System.out.println("Error: no se puede pasar de " + s.estado + " a " + nuevo);
+        try {
+            s.cambiarEstado(estadoNuevo.get());
+        } catch (SolicitudException ex) {
+            System.out.println("Error: " + ex.getMessage());
             return false;
         }
 
         guardar();
-        System.out.println("Solicitud #" + id + " ahora esta " + s.estado);
+        System.out.println("Solicitud #" + id + " ahora esta " + s.getEstado());
         return true;
     }
 
     public boolean asignarResponsable(int idSolicitud, int idResp) {
         Solicitud s = null;
         for (int i = 0; i < lst.size(); i++) {
-            if (lst.get(i).id == idSolicitud) {
+            if (lst.get(i).getId() == idSolicitud) {
                 s = lst.get(i);
             }
         }
@@ -157,14 +126,14 @@ public class SistemaSolicitudes {
             return false;
         }
 
-        if (s.estado == EstadoSolicitud.RESUELTA || s.estado == EstadoSolicitud.RECHAZADA) {
+        if (s.estaCerrada()) {
             System.out.println("Error: la solicitud ya esta cerrada");
             return false;
         }
 
         Responsable r = null;
         for (int i = 0; i < responsables.size(); i++) {
-            if (responsables.get(i).id == idResp) {
+            if (responsables.get(i).getId() == idResp) {
                 r = responsables.get(i);
             }
         }
@@ -173,16 +142,16 @@ public class SistemaSolicitudes {
             return false;
         }
 
-        s.resp = r;
+        s.asignarResponsable(r);
         guardar();
-        System.out.println("Solicitud #" + idSolicitud + " asignada a " + r.nombre + " (" + r.area + ")");
+        System.out.println("Solicitud #" + idSolicitud + " asignada a " + r.getNombre() + " (" + r.getArea() + ")");
         return true;
     }
 
     public List<Solicitud> filtrarPorEstado(String estado) {
         List<Solicitud> res = new ArrayList<>();
         for (int i = 0; i < lst.size(); i++) {
-            if (lst.get(i).estado.name().equals(estado)) {
+            if (lst.get(i).getEstado().name().equals(estado)) {
                 res.add(lst.get(i));
             }
         }
@@ -192,7 +161,7 @@ public class SistemaSolicitudes {
     public List<Solicitud> filtrarPorTipo(String tipo) {
         List<Solicitud> res = new ArrayList<>();
         for (int i = 0; i < lst.size(); i++) {
-            if (lst.get(i).tipo.name().equals(tipo)) {
+            if (lst.get(i).getTipo().name().equals(tipo)) {
                 res.add(lst.get(i));
             }
         }
@@ -202,7 +171,7 @@ public class SistemaSolicitudes {
     public List<Solicitud> filtrarPorEstudiante(String legajo) {
         List<Solicitud> res = new ArrayList<>();
         for (int i = 0; i < lst.size(); i++) {
-            if (lst.get(i).est.legajo.equals(legajo)) {
+            if (lst.get(i).perteneceA(legajo)) {
                 res.add(lst.get(i));
             }
         }
@@ -216,11 +185,11 @@ public class SistemaSolicitudes {
         }
         for (Solicitud s : l) {
             String r = "sin asignar";
-            if (s.resp != null) {
-                r = s.resp.nombre + " (" + s.resp.area + ")";
+            if (s.getResponsable() != null) {
+                r = s.getResponsable().getNombre() + " (" + s.getResponsable().getArea() + ")";
             }
-            System.out.println("#" + s.id + " | " + s.tipo + " | " + s.prioridad + " | " + s.estado
-                    + " | " + s.est.nombre + " | " + r + " | " + s.desc);
+            System.out.println("#" + s.getId() + " | " + s.getTipo() + " | " + s.getPrioridad() + " | " + s.getEstado()
+                    + " | " + s.getEstudiante().getNombre() + " | " + r + " | " + s.getDescripcion());
         }
     }
 
@@ -230,13 +199,13 @@ public class SistemaSolicitudes {
 
         int pend = 0, proc = 0, res = 0, rech = 0;
         for (Solicitud s : lst) {
-            if (s.estado == EstadoSolicitud.PENDIENTE) {
+            if (s.getEstado() == EstadoSolicitud.PENDIENTE) {
                 pend++;
-            } else if (s.estado == EstadoSolicitud.EN_PROCESO) {
+            } else if (s.getEstado() == EstadoSolicitud.EN_PROCESO) {
                 proc++;
-            } else if (s.estado == EstadoSolicitud.RESUELTA) {
+            } else if (s.getEstado() == EstadoSolicitud.RESUELTA) {
                 res++;
-            } else if (s.estado == EstadoSolicitud.RECHAZADA) {
+            } else if (s.getEstado() == EstadoSolicitud.RECHAZADA) {
                 rech++;
             }
         }
@@ -248,13 +217,13 @@ public class SistemaSolicitudes {
 
         int cert = 0, eq = 0, cc = 0, rn = 0;
         for (Solicitud s : lst) {
-            if (s.tipo == TipoSolicitud.CERTIFICADO) {
+            if (s.getTipo() == TipoSolicitud.CERTIFICADO) {
                 cert++;
-            } else if (s.tipo == TipoSolicitud.EQUIVALENCIA) {
+            } else if (s.getTipo() == TipoSolicitud.EQUIVALENCIA) {
                 eq++;
-            } else if (s.tipo == TipoSolicitud.CAMBIO_COMISION) {
+            } else if (s.getTipo() == TipoSolicitud.CAMBIO_COMISION) {
                 cc++;
-            } else if (s.tipo == TipoSolicitud.RECLAMO_NOTA) {
+            } else if (s.getTipo() == TipoSolicitud.RECLAMO_NOTA) {
                 rn++;
             }
         }
@@ -266,13 +235,11 @@ public class SistemaSolicitudes {
 
         System.out.println("--- Vencidas ---");
         int venc = 0;
+        LocalDate hoy = LocalDate.now();
         for (Solicitud s : lst) {
-            if (s.estado != EstadoSolicitud.RESUELTA && s.estado != EstadoSolicitud.RECHAZADA) {
-                LocalDate limite = s.fecha.plusDays(calcularDiasLimite(s));
-                if (LocalDate.now().isAfter(limite)) {
-                    System.out.println("#" + s.id + " " + s.tipo + " vencio el " + limite);
-                    venc++;
-                }
+            if (s.estaVencida(hoy)) {
+                System.out.println("#" + s.getId() + " " + s.getTipo() + " vencio el " + s.fechaLimite());
+                venc++;
             }
         }
         if (venc == 0) {
@@ -280,23 +247,24 @@ public class SistemaSolicitudes {
         }
     }
 
-    public void guardar() {
+    private void guardar() {
         try {
             FileWriter fw = new FileWriter("solicitudes.csv");
             for (Solicitud s : lst) {
                 int idR = 0;
-                if (s.resp != null) {
-                    idR = s.resp.id;
+                if (s.getResponsable() != null) {
+                    idR = s.getResponsable().getId();
                 }
-                fw.write(s.id + ";" + s.tipo + ";" + s.prioridad.getCodigo() + ";" + s.estado + ";" + s.desc + ";"
-                        + s.fecha + ";" + s.est.legajo + ";" + s.est.nombre + ";" + s.est.email + ";" + idR + "\n");
+                fw.write(s.getId() + ";" + s.getTipo() + ";" + s.getPrioridad().getCodigo() + ";" + s.getEstado() + ";"
+                        + s.getDescripcion() + ";" + s.getFecha() + ";" + s.getEstudiante().getLegajo() + ";"
+                        + s.getEstudiante().getNombre() + ";" + s.getEstudiante().getEmail() + ";" + idR + "\n");
             }
             fw.close();
         } catch (Exception ex) {
         }
     }
 
-    public void cargar() {
+    private void cargar() {
         try {
             BufferedReader br = new BufferedReader(new FileReader("solicitudes.csv"));
             String linea;
@@ -305,7 +273,7 @@ public class SistemaSolicitudes {
 
                 Estudiante e = null;
                 for (Estudiante aux : estudiantes) {
-                    if (aux.legajo.equals(x[6])) {
+                    if (aux.getLegajo().equals(x[6])) {
                         e = aux;
                     }
                 }
@@ -314,20 +282,21 @@ public class SistemaSolicitudes {
                     estudiantes.add(e);
                 }
 
-                Solicitud s = new Solicitud(Integer.parseInt(x[0]), TipoSolicitud.valueOf(x[1]),
-                        Prioridad.desdeCodigo(Integer.parseInt(x[2])).get(), x[4], LocalDate.parse(x[5]), e);
-                s.estado = EstadoSolicitud.valueOf(x[3]);
-
+                Responsable resp = null;
                 int idR = Integer.parseInt(x[9]);
                 for (Responsable r : responsables) {
-                    if (r.id == idR) {
-                        s.resp = r;
+                    if (r.getId() == idR) {
+                        resp = r;
                     }
                 }
 
+                Solicitud s = Solicitud.reconstruir(Integer.parseInt(x[0]), TipoSolicitud.valueOf(x[1]),
+                        Prioridad.desdeCodigo(Integer.parseInt(x[2])).get(), EstadoSolicitud.valueOf(x[3]),
+                        x[4], LocalDate.parse(x[5]), e, resp);
+
                 lst.add(s);
-                if (s.id > ultimoId) {
-                    ultimoId = s.id;
+                if (s.getId() > ultimoId) {
+                    ultimoId = s.getId();
                 }
             }
             br.close();
