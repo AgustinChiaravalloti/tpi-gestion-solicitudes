@@ -113,6 +113,15 @@ class SolicitudTest {
     }
 
     @Test
+    @DisplayName("No se puede crear una solicitud sin sus datos obligatorios")
+    void datosObligatorios() {
+        assertThrows(NullPointerException.class, () -> new Solicitud(1, TipoSolicitud.CERTIFICADO,
+                Prioridad.MEDIA, "Certificado de alumno regular", ALTA, null));
+        assertThrows(NullPointerException.class, () -> new Solicitud(1, null,
+                Prioridad.MEDIA, "Certificado de alumno regular", ALTA, ANA));
+    }
+
+    @Test
     @DisplayName("Sabe a que estudiante pertenece")
     void perteneceAEstudiante() {
         Solicitud solicitud = certificado(Prioridad.MEDIA);

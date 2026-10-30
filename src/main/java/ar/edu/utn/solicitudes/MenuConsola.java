@@ -117,7 +117,10 @@ public class MenuConsola {
 
     private void cambiarEstado() {
         int id = leerEntero("Id de la solicitud: ");
-        String estado = leerTexto("Nuevo estado (EN_PROCESO / RESUELTA / RECHAZADA): ").toUpperCase();
+        EstadoSolicitud[] destinos = Arrays.stream(EstadoSolicitud.values())
+                .filter(EstadoSolicitud::esDestinoPosible)
+                .toArray(EstadoSolicitud[]::new);
+        String estado = leerTexto("Nuevo estado (" + opciones(destinos) + "): ").toUpperCase();
 
         Solicitud solicitud = servicio.cambiarEstado(id, estado);
         salida.println("Solicitud #" + solicitud.getId() + " ahora esta " + solicitud.getEstado());

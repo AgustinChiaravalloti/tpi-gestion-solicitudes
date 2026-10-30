@@ -88,6 +88,15 @@ class EnumsTest {
     }
 
     @Test
+    @DisplayName("PENDIENTE es el unico estado al que no se llega por una transicion")
+    void destinosPosibles() {
+        assertFalse(EstadoSolicitud.PENDIENTE.esDestinoPosible());
+        assertTrue(EstadoSolicitud.EN_PROCESO.esDestinoPosible());
+        assertTrue(EstadoSolicitud.RESUELTA.esDestinoPosible());
+        assertTrue(EstadoSolicitud.RECHAZADA.esDestinoPosible());
+    }
+
+    @Test
     @DisplayName("Los textos desconocidos no se convierten en tipo ni estado")
     void textosDesconocidos() {
         assertEquals(Optional.of(TipoSolicitud.CERTIFICADO), TipoSolicitud.desdeTexto("CERTIFICADO"));

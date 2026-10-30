@@ -1,6 +1,5 @@
 package ar.edu.utn.solicitudes;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,9 +42,5 @@ public class RepositorioSolicitudesEnMemoria implements SolicitudRepository {
                 .map(Solicitud::getEstudiante)
                 .filter(estudiante -> estudiante.getLegajo().equals(legajo))
                 .findFirst();
-    }
-
-    protected List<Solicitud> copiaDeTodas() {
-        return new ArrayList<>(solicitudes.values());
     }
 }

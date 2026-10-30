@@ -99,7 +99,7 @@ public final class RepositorioSolicitudesCsv extends RepositorioSolicitudesEnMem
 
     private void escribirArchivo() {
         try (BufferedWriter escritor = Files.newBufferedWriter(archivo, StandardCharsets.UTF_8)) {
-            for (Solicitud solicitud : copiaDeTodas()) {
+            for (Solicitud solicitud : listarTodas()) {
                 escritor.write(convertirALineaCsv(solicitud));
                 escritor.newLine();
             }

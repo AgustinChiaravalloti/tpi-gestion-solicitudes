@@ -1,6 +1,7 @@
 package ar.edu.utn.solicitudes;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 public class Solicitud {
 
@@ -16,11 +17,11 @@ public class Solicitud {
     public Solicitud(int id, TipoSolicitud tipo, Prioridad prioridad, String descripcion,
                      LocalDate fecha, Estudiante estudiante) {
         this.id = id;
-        this.tipo = tipo;
-        this.prioridad = tipo.prioridadPara(prioridad);
-        this.descripcion = descripcion;
-        this.fecha = fecha;
-        this.estudiante = estudiante;
+        this.tipo = Objects.requireNonNull(tipo, "el tipo es obligatorio");
+        this.prioridad = tipo.prioridadPara(Objects.requireNonNull(prioridad, "la prioridad es obligatoria"));
+        this.descripcion = Objects.requireNonNull(descripcion, "la descripcion es obligatoria");
+        this.fecha = Objects.requireNonNull(fecha, "la fecha es obligatoria");
+        this.estudiante = Objects.requireNonNull(estudiante, "el estudiante es obligatorio");
         this.estado = EstadoSolicitud.PENDIENTE;
     }
 
@@ -29,7 +30,7 @@ public class Solicitud {
                                        String descripcion, LocalDate fecha, Estudiante estudiante,
                                        Responsable responsable) {
         Solicitud solicitud = new Solicitud(id, tipo, prioridad, descripcion, fecha, estudiante);
-        solicitud.estado = estado;
+        solicitud.estado = Objects.requireNonNull(estado, "el estado es obligatorio");
         solicitud.responsable = responsable;
         return solicitud;
     }

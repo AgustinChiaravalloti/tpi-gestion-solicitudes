@@ -42,6 +42,11 @@ public enum EstadoSolicitud {
         return false;
     }
 
+    /** Indica si se puede llegar a este estado desde algun otro (es destino de alguna transicion). */
+    public boolean esDestinoPosible() {
+        return Arrays.stream(values()).anyMatch(origen -> origen.puedePasarA(this));
+    }
+
     /** Un estado es final cuando no admite ninguna transicion. */
     public boolean esFinal() {
         return Arrays.stream(values()).noneMatch(this::puedePasarA);
