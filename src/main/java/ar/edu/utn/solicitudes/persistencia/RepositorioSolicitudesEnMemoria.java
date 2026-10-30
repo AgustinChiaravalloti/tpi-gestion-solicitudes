@@ -1,4 +1,8 @@
-package ar.edu.utn.solicitudes;
+package ar.edu.utn.solicitudes.persistencia;
+
+import ar.edu.utn.solicitudes.dominio.Estudiante;
+import ar.edu.utn.solicitudes.dominio.Solicitud;
+import ar.edu.utn.solicitudes.servicio.SolicitudRepository;
 
 import java.util.LinkedHashMap;
 import java.util.List;

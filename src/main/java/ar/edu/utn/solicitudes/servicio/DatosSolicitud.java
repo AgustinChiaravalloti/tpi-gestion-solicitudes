@@ -1,4 +1,4 @@
-package ar.edu.utn.solicitudes;
+package ar.edu.utn.solicitudes.servicio;
 
 import java.time.LocalDate;
 

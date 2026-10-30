@@ -1,4 +1,7 @@
-package ar.edu.utn.solicitudes;
+package ar.edu.utn.solicitudes.consola;
+
+import ar.edu.utn.solicitudes.dominio.*;
+import ar.edu.utn.solicitudes.servicio.*;
 
 import java.io.PrintStream;
 import java.time.Clock;

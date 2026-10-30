@@ -1,4 +1,4 @@
-package ar.edu.utn.solicitudes;
+package ar.edu.utn.solicitudes.dominio;
 
 import java.time.LocalDate;
 import java.util.Objects;

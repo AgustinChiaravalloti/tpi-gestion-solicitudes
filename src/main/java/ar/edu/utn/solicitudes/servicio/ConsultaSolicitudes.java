@@ -1,4 +1,6 @@
-package ar.edu.utn.solicitudes;
+package ar.edu.utn.solicitudes.servicio;
+
+import ar.edu.utn.solicitudes.dominio.Solicitud;
 
 import java.util.List;
 import java.util.Optional;

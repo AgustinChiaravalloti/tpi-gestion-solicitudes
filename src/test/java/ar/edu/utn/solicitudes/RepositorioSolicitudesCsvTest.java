@@ -11,6 +11,9 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.List;
 
+import ar.edu.utn.solicitudes.dominio.*;
+import ar.edu.utn.solicitudes.persistencia.RepositorioSolicitudesCsv;
+import ar.edu.utn.solicitudes.servicio.PersistenciaException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;

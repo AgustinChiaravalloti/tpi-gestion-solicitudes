@@ -1,4 +1,4 @@
-package ar.edu.utn.solicitudes;
+package ar.edu.utn.solicitudes.dominio;
 
 /**
  * Se lanza cuando una operacion viola una regla de negocio de las solicitudes.

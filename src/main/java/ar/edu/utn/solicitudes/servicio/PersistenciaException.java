@@ -1,4 +1,4 @@
-package ar.edu.utn.solicitudes;
+package ar.edu.utn.solicitudes.servicio;
 
 /**
  * Se lanza cuando no se pueden leer o escribir los datos guardados.

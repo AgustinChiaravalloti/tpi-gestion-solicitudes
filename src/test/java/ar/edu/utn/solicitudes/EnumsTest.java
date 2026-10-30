@@ -6,6 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Optional;
 
+import ar.edu.utn.solicitudes.dominio.EstadoSolicitud;
+import ar.edu.utn.solicitudes.dominio.Prioridad;
+import ar.edu.utn.solicitudes.dominio.TipoSolicitud;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

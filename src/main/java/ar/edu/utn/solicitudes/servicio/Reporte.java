@@ -1,4 +1,8 @@
-package ar.edu.utn.solicitudes;
+package ar.edu.utn.solicitudes.servicio;
+
+import ar.edu.utn.solicitudes.dominio.EstadoSolicitud;
+import ar.edu.utn.solicitudes.dominio.Solicitud;
+import ar.edu.utn.solicitudes.dominio.TipoSolicitud;
 
 import java.util.List;
 import java.util.Map;

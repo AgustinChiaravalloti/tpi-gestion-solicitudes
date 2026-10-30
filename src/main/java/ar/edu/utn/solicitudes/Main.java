@@ -1,5 +1,13 @@
 package ar.edu.utn.solicitudes;
 
+import ar.edu.utn.solicitudes.consola.MenuConsola;
+import ar.edu.utn.solicitudes.dominio.CatalogoResponsables;
+import ar.edu.utn.solicitudes.persistencia.RepositorioSolicitudesCsv;
+import ar.edu.utn.solicitudes.servicio.GeneradorReporte;
+import ar.edu.utn.solicitudes.servicio.PersistenciaException;
+import ar.edu.utn.solicitudes.servicio.SolicitudRepository;
+import ar.edu.utn.solicitudes.servicio.SolicitudService;
+
 import java.nio.file.Path;
 import java.time.Clock;
 import java.util.Scanner;

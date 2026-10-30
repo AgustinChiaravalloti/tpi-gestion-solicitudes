@@ -6,6 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.time.LocalDate;
 import java.util.List;
 
+import ar.edu.utn.solicitudes.dominio.*;
+import ar.edu.utn.solicitudes.persistencia.RepositorioSolicitudesEnMemoria;
+import ar.edu.utn.solicitudes.servicio.DatosSolicitud;
+import ar.edu.utn.solicitudes.servicio.SolicitudService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

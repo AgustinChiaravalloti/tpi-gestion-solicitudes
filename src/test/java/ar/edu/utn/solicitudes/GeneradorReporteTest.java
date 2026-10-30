@@ -6,6 +6,10 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.ZoneId;
 
+import ar.edu.utn.solicitudes.dominio.*;
+import ar.edu.utn.solicitudes.persistencia.RepositorioSolicitudesEnMemoria;
+import ar.edu.utn.solicitudes.servicio.GeneradorReporte;
+import ar.edu.utn.solicitudes.servicio.Reporte;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

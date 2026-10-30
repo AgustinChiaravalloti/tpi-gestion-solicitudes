@@ -11,6 +11,11 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Scanner;
 
+import ar.edu.utn.solicitudes.consola.MenuConsola;
+import ar.edu.utn.solicitudes.dominio.CatalogoResponsables;
+import ar.edu.utn.solicitudes.persistencia.RepositorioSolicitudesEnMemoria;
+import ar.edu.utn.solicitudes.servicio.GeneradorReporte;
+import ar.edu.utn.solicitudes.servicio.SolicitudService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

@@ -1,4 +1,4 @@
-package ar.edu.utn.solicitudes;
+package ar.edu.utn.solicitudes.persistencia;
 
 import java.util.ArrayList;
 import java.util.List;

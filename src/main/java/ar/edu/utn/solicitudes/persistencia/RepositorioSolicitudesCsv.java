@@ -1,4 +1,7 @@
-package ar.edu.utn.solicitudes;
+package ar.edu.utn.solicitudes.persistencia;
+
+import ar.edu.utn.solicitudes.dominio.*;
+import ar.edu.utn.solicitudes.servicio.PersistenciaException;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
